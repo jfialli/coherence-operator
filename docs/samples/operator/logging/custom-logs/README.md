@@ -17,7 +17,7 @@ from this logger captured via `fluentd` and displayed in Kibana.
 
 * [src/main/resources/conf/fluentd-cloud.conf](src/main/resources/conf/fluentd-cloud.conf) - Fluentd configuration for `cloud` logger
 
-* [src/main/java/com/oracle/coherence/examples/CustomFileHandler.java](src/main/java/com/oracle/coherence/examples/CustomFileHandler.java) - Logger for custom 'sample' logger
+* [src/main/java/com/oracle/coherence/examples/CustomFileHandler.java](src/main/java/com/oracle/coherence/examples/CustomFileHandler.java) - Logger for custom 'cloud' logger
 
 * [src/main/java/com/oracle/coherence/examples/UppercaseLoggingInterceptor.java](src/main/java/com/oracle/coherence/examples/UppercaseLoggingInterceptor.java) - interceptor to update values to upper case and use custom logger
 
@@ -27,14 +27,14 @@ Ensure you have already installed the Coherence Operator with `--set logCaptureE
 
 ## Installation Steps
 
-1. Change to the `samples/operator/logging/custom-logs` directory and ensure you have your you have your maven build     
+1. Change to the `samples/operator/logging/custom-logs` directory and ensure you have your maven build     
    environment set for JDK11 and build the project.
 
    ```bash
    mvn clean install -P docker
    ```
 
-   The above will build the Docker image with the cache configuration files and compiled Java classes.
+   The above will build the Docker image with the cache and logging configuration files and compiled Java classes.
 
    **Note:** If you are running against a remote Kubernetes cluster you will need to
    push the above image to your repository accessible to that cluster.
@@ -137,21 +137,12 @@ Ensure you have already installed the Coherence Operator with `--set logCaptureE
    From the above, you can see that the server side interceptor has changed the value
    to uppercase.
    
-1. Confirm the log message can be seen 
-
-   Issue the following to check that the log message can be seen via `kubectl logs`.
-
-   ```bash
-   $ kubectl logs storage-coherence-0  -n sample-coherence-ns -c coherence | egrep 'Before|Changed'
-   2019-04-29 04:45:03 Cloud 1.0 <INFO> (cluster=custom-logger-cluster, member=storage-coherence-0, thread=PartitionedCacheWorker:0x0000:5): Before, key=key-4, value=value-4
-   2019-04-29 04:45:03 Cloud 1.0 <INFO> (cluster=custom-logger-cluster, member=storage-coherence-0, thread=PartitionedCacheWorker:0x0000:5): Changed key=key-4 to value=VALUE-4
-   ``` 
-
-   Check the `/logs/cloud*.log` file exists.
+1. Confirm the log message can be seen in the `/logs/cloud*.log`.
    
    ```bash
-   $ kubectl exec -it  storage-coherence-0  -n sample-coherence-ns -c coherence -- bash -c 'ls /logs/cloud*.log'
-   /logs/cloud-0.log
+   $ kubectl exec -it  storage-coherence-0  -n sample-coherence-ns -c coherence -- bash -c 'cat /logs/cloud*.log'
+   2019-04-29 04:45:03 Cloud 1.0 <INFO> (cluster=custom-logger-cluster, member=storage-coherence-0, thread=PartitionedCacheWorker:0x0000:5): Before, key=key-4, value=value-4
+   2019-04-29 04:45:03 Cloud 1.0 <INFO> (cluster=custom-logger-cluster, member=storage-coherence-0, thread=PartitionedCacheWorker:0x0000:5): Changed key=key-4 to value=VALUE-4
    ```
    
    *Note*: Depending upon the data distribution, not all members will show the message.
